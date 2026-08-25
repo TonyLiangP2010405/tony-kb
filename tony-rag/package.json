@@ -1,0 +1,15 @@
+{
+  "name": "tony-rag",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local hybrid BM25+vector RAG retrieval service over the D:/IPAV document corpus (zero npm dependencies).",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/rag-server.js",
+    "ingest": "node --disable-warning=ExperimentalWarning scripts/ingest.mjs",
+    "check": "node --check src/rag-server.js && node --check scripts/ingest.mjs"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}

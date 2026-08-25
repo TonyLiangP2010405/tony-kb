@@ -1,0 +1,17 @@
+# 数据库与运行时
+tony-rag/data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.runtime/
+
+# 入库临时产物
+tony-rag/tmp/
+tmp/
+
+# 依赖
+node_modules/
+
+# 系统
+Thumbs.db
+.DS_Store
