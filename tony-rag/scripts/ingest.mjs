@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * tony-rag 入库脚本
- * 流程：扫描 D:/IPAV 文本类文件 -> 分派解析（parse.py / Office COM 缓存+补跑）
+ * 流程：扫描 ROOTS（D:/IPAV、D:/ProitAV）文本类文件 -> 分派解析（parse.py / Office COM 缓存+补跑）
  *      -> 切块 -> embedText 向量 -> 写入 tony.sqlite 的 file_knowledge_* 三表
  *
  * 增量策略：content_hash = sha256(路径+mtime+size)，未变化文件跳过（不重新抽取），
@@ -20,7 +20,9 @@ import { config } from '../src/config.js';
 import { db, initializeDatabase } from '../src/shared/database/database.js';
 import { embedText, vectorToBuffer } from '../src/features/search/vector.js';
 
-const ROOT = 'D:/IPAV';
+// 扫描根目录列表：第一个为主根，其相对路径保持原样（兼容既有库记录）；
+// 其余根的相对路径以根目录名作前缀（如 ProitAV/Amplifier/...），避免与主根路径冲突。
+const ROOTS = ['D:/IPAV', 'D:/ProitAV'];
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TMP_DIR = path.join(__dirname, '..', 'tmp');
 const LEGACY_TMP_DIR = path.resolve(__dirname, '..', '..', 'tmp');
@@ -38,27 +40,26 @@ fs.mkdirSync(TMP_DIR, { recursive: true });
 // ---------- 扫描 ----------
 function collectFiles() {
   const files = [];
-  function walk(dir) {
+  function walk(dir, relBase) {
     let entries;
     try { entries = fs.readdirSync(dir, { withFileTypes: true }); }
     catch { return; }
     for (const e of entries) {
       if (e.name.startsWith('$') || e.name.startsWith('~')) continue; // Office 临时文件
       const full = path.join(dir, e.name);
+      const rel = relBase ? `${relBase}/${e.name}` : e.name;
       if (e.isDirectory()) {
         if (EXCLUDE_DIRS.has(e.name)) continue;
-        walk(full);
+        walk(full, rel);
       } else if (e.isFile()) {
-        if (TEXT_EXTS.has(path.extname(e.name).toLowerCase())) files.push(full);
+        if (TEXT_EXTS.has(path.extname(e.name).toLowerCase())) files.push({ abs: full, rel });
       }
     }
   }
-  walk(ROOT);
-  return files.sort();
-}
-
-function relPath(p) {
-  return path.relative(ROOT, p).split(path.sep).join('/');
+  for (let i = 0; i < ROOTS.length; i += 1) {
+    walk(ROOTS[i], i === 0 ? '' : path.basename(ROOTS[i]));
+  }
+  return files.sort((a, b) => a.rel.localeCompare(b.rel));
 }
 
 function contentHash(rel, stat) {
@@ -172,8 +173,7 @@ function main() {
   const seen = new Set();
   const pending = []; // 需要（重新）抽取的文件
   let unchanged = 0;
-  for (const file of allFiles) {
-    const rel = relPath(file);
+  for (const { abs: file, rel } of allFiles) {
     seen.add(rel);
     let stat;
     try { stat = fs.statSync(file); } catch { continue; }

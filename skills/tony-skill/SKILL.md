@@ -1,11 +1,11 @@
 ---
 name: tony-skill
-description: Query the local Tony knowledge base — the D:/IPAV document tree (~2,214 product/design/user-manual files, docx/pdf/doc/txt/md/xlsx) served by the local tony-rag retrieval service (hybrid BM25 + vector search). Use whenever the user asks a question answerable from IPAV files — product specs, video-wall and mosaic-screen configuration, AV-over-IP commands and APIs, user manuals, R&D docs, release notes, WyreStorm/NHD/IP-series models. Returns evidence with source file path and locator.
+description: Query the local Tony knowledge base — the D:/IPAV and D:/ProitAV document trees (product/design/user-manual files, docx/pdf/doc/txt/md/xlsx) served by the local tony-rag retrieval service (hybrid BM25 + vector search). Use whenever the user asks a question answerable from IPAV/ProitAV files — product specs, video-wall and mosaic-screen configuration, AV-over-IP commands and APIs, user manuals, R&D docs, release notes, WyreStorm/NHD/IP-series models. Returns evidence with source file path and locator.
 ---
 
 # Tony Skill（IPAV 知识库统一入口）
 
-用本地 tony-rag 检索服务（由 `D:\IPAV` 目录树建成的混合检索知识库：BM25 + 向量 + RRF 重排序）回答检索问答类问题。先检索，再基于命中的证据片段作答；不要把未出现在检索结果里的事实当成已记录。
+用本地 tony-rag 检索服务（由 `D:\IPAV` 与 `D:\ProitAV` 目录树建成的混合检索知识库：BM25 + 向量 + RRF 重排序）回答检索问答类问题。先检索，再基于命中的证据片段作答；不要把未出现在检索结果里的事实当成已记录。
 
 规范客户端：
 
@@ -17,11 +17,11 @@ Windows 下 `$HOME` 与绝对路径均可。服务监听 `127.0.0.1:4174`，客�
 
 ## Workflow
 
-1. 首次使用先跑 `health`，确认服务可用（应为 2200 份文档左右）。
+1. 首次使用先跑 `health`，确认服务可用（应为 3900 份文档左右）。
 2. 技术/配置/资料类问题用 `search`，以用户原话或精简后的关键词检索。
 3. 若首批结果不清晰，最多用首次结果中出现的确切型号、英文 UI 标签或协议名做一次聚焦检索。
 4. 用 `product "型号"` 列出某个型号相关的全部文档。
-5. 依据返回结果作答，并引用每份证据的 `file`（源文件相对 `D:\IPAV` 的路径）、`locator` 和 `excerpt`/`content`（命中片段）。
+5. 依据返回结果作答，并引用每份证据的 `file`（源文件相对 `D:\IPAV` 的路径；`ProitAV/` 前缀表示来自 `D:\ProitAV`）、`locator` 和 `excerpt`/`content`（命中片段）。
 
 ## Commands
 
@@ -40,4 +40,4 @@ node "$HOME/.agents/skills/tony-skill/scripts/tony_kb.mjs" product "IP5100"
 - 检索本身不授权执行真实设备的 Apply / Route / Upgrade / Reset / Reboot 等操作。
 - 不检索或暴露密钥、密码、序列号、客户私有拓扑等信息。
 - 部分图片型 PDF（装配图/丝印图，约 160 份）无文本层未入库；命中不到时留意这一盲区。
-- `D:\IPAV` 目录新增/更新文件后，需重跑 `node "D:/IPAV/.ipav-rag/tony-rag/scripts/ingest.mjs"` 入库，并重启服务（`taskkill //F //PID <pid>` 后由客户端自动拉起，或 `npm start`）才能搜到新内容。
+- `D:\IPAV` 或 `D:\ProitAV` 目录新增/更新文件后，需重跑 `node "D:/IPAV/.ipav-rag/tony-rag/scripts/ingest.mjs"` 入库（脚本 ROOTS 已含两个根目录，`D:\ProitAV` 文件的 `file` 以 `ProitAV/` 前缀标识），并重启服务（`taskkill //F //PID <pid>` 后由客户端自动拉起，或 `npm start`）才能搜到新内容。

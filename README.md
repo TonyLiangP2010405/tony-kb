@@ -1,6 +1,6 @@
 # tony-kb
 
-本地文档知识库 + AI agent skill。把 `D:\IPAV` 目录树下的产品/设计/用户手册文档（docx / pdf / doc / txt / md / xlsx）建成可检索的本地知识库，通过 hybrid 检索（BM25 + 哈希向量 + RRF 融合 + 重排序）提供查询服务，并附带 agent skill 统一入口。
+本地文档知识库 + AI agent skill。把 `D:\IPAV` 与 `D:\ProitAV` 目录树下的产品/设计/用户手册文档（docx / pdf / doc / txt / md / xlsx）建成可检索的本地知识库，通过 hybrid 检索（BM25 + 哈希向量 + RRF 融合 + 重排序）提供查询服务，并附带 agent skill 统一入口。
 
 零 npm 依赖，仅需 Node.js ≥ 22.5（用到 `node:sqlite` / `node:http`）。
 
@@ -17,7 +17,7 @@ skills/tony-skill/   # agent skill（SKILL.md + tony_kb.mjs 客户端）
 ## 使用
 
 ```bash
-# 入库（扫描 D:/IPAV，增量）
+# 入库（扫描 D:/IPAV 与 D:/ProitAV，增量；ProitAV 文件以 ProitAV/ 前缀入库）
 node tony-rag/scripts/ingest.mjs
 
 # 启动服务（默认 127.0.0.1:4174，PORT/HOST/DATABASE_PATH 可用环境变量覆盖）
