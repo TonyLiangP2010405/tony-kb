@@ -22,7 +22,7 @@ import { embedText, vectorToBuffer } from '../src/features/search/vector.js';
 
 // 扫描根目录列表：第一个为主根，其相对路径保持原样（兼容既有库记录）；
 // 其余根的相对路径以根目录名作前缀（如 ProitAV/Amplifier/...），避免与主根路径冲突。
-const ROOTS = ['D:/IPAV', 'D:/ProitAV'];
+const ROOTS = ['D:/IPAV', 'D:/ProitAV', 'D:/问题案例'];
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TMP_DIR = path.join(__dirname, '..', 'tmp');
 const LEGACY_TMP_DIR = path.resolve(__dirname, '..', '..', 'tmp');
