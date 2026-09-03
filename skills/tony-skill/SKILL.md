@@ -5,7 +5,7 @@ description: Query the local Tony knowledge base — the D:/IPAV and D:/ProitAV 
 
 # Tony Skill（IPAV 知识库统一入口）
 
-用本地 tony-rag 检索服务（由 `D:\IPAV` 与 `D:\ProitAV` 目录树建成的混合检索知识库：BM25 + 向量 + RRF 重排序）回答检索问答类问题。先检索，再基于命中的证据片段作答；不要把未出现在检索结果里的事实当成已记录。
+用本地 tony-rag 检索服务（由 `D:\IPAV`、`D:\ProitAV` 与 `D:\问题案例` 目录树建成的混合检索知识库：BM25 + 向量 + RRF 重排序）回答检索问答类问题。先检索，再基于命中的证据片段作答；不要把未出现在检索结果里的事实当成已记录。
 
 规范客户端：
 
@@ -21,7 +21,8 @@ Windows 下 `$HOME` 与绝对路径均可。服务监听 `127.0.0.1:4174`，客�
 2. 技术/配置/资料类问题用 `search`，以用户原话或精简后的关键词检索。
 3. 若首批结果不清晰，最多用首次结果中出现的确切型号、英文 UI 标签或协议名做一次聚焦检索。
 4. 用 `product "型号"` 列出某个型号相关的全部文档。
-5. 依据返回结果作答，并引用每份证据的 `file`（源文件相对 `D:\IPAV` 的路径；`ProitAV/` 前缀表示来自 `D:\ProitAV`）、`locator` 和 `excerpt`/`content`（命中片段）。
+5. 依据返回结果作答，并引用每份证据的 `file`（源文件相对 `D:\IPAV` 的路径；`ProitAV/` 前缀表示来自 `D:\ProitAV`，`问题案例/` 前缀表示来自 `D:\问题案例` 的历史故障排查案例）、`locator` 和 `excerpt`/`content`（命中片段）。
+6. 排障/故障类问题优先留意 `问题案例/` 前缀的命中：这些是真实排查记录，含症状、信号链、候选假设和最终根因，可作为相似案例先验。
 
 ## Commands
 
@@ -40,4 +41,4 @@ node "$HOME/.agents/skills/tony-skill/scripts/tony_kb.mjs" product "IP5100"
 - 检索本身不授权执行真实设备的 Apply / Route / Upgrade / Reset / Reboot 等操作。
 - 不检索或暴露密钥、密码、序列号、客户私有拓扑等信息。
 - 部分图片型 PDF（装配图/丝印图，约 160 份）无文本层未入库；命中不到时留意这一盲区。
-- `D:\IPAV` 或 `D:\ProitAV` 目录新增/更新文件后，需重跑 `node "D:/IPAV/.ipav-rag/tony-rag/scripts/ingest.mjs"` 入库（脚本 ROOTS 已含两个根目录，`D:\ProitAV` 文件的 `file` 以 `ProitAV/` 前缀标识），并重启服务（`taskkill //F //PID <pid>` 后由客户端自动拉起，或 `npm start`）才能搜到新内容。
+- `D:\IPAV`、`D:\ProitAV` 或 `D:\问题案例` 目录新增/更新文件后，需重跑 `node "D:/IPAV/.ipav-rag/tony-rag/scripts/ingest.mjs"` 入库（脚本 ROOTS 已含三个根目录，`D:\ProitAV` 与 `D:\问题案例` 文件的 `file` 分别以 `ProitAV/`、`问题案例/` 前缀标识），并重启服务（`taskkill //F //PID <pid>` 后由客户端自动拉起，或 `npm start`）才能搜到新内容。
